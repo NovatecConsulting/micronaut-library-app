@@ -1,23 +1,25 @@
-package library.service.database
+package library.service.api.books
 
 import com.mongodb.client.result.UpdateResult
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import library.service.api.books.payload.*
+import library.service.database.BookDocument
+import library.service.database.BookRepository
 
 
 @Controller("/books")
-class BookRestController(
+class BooksController(
         private val repository: BookRepository
 ) {
 
     @Get("/")
-    fun getBooks(): HttpResponse<List<Book>> {
+    fun getBooks(): HttpResponse<List<BookDocument>> {
         return HttpResponse.ok(repository.find())
     }
 
     @Get("/{_id}")
-    fun getBook(_id: String): HttpResponse<Book?>? {
+    fun getBook(_id: String): HttpResponse<BookDocument?>? {
         val book = repository.find(_id)
         book?.let {
             return HttpResponse.ok(repository.find(_id))
@@ -26,13 +28,13 @@ class BookRestController(
     }
 
     @Post("/")
-    fun postBook(@Body body: CreateBookRequest): HttpResponse<Book> {
-        val insertedBook = repository.insert(body.isbn, body.title)
+    fun postBook(@Body body: CreateBookRequest): HttpResponse<BookDocument> {
+        val insertedBook = repository.insert(body.isbn.toString(), body.title.toString())
         return HttpResponse.created(insertedBook)
     }
 
     @Delete("/{_id}")
-    fun deleteOne(_id: String): HttpResponse<Book> {
+    fun deleteOne(_id: String): HttpResponse<BookDocument> {
         repository.delete(_id)
         return HttpResponse.noContent()
     }
