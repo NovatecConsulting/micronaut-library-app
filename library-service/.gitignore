@@ -4,6 +4,7 @@ Thumbs.db
 build/
 target/
 out/
+.kotlintest/
 .idea
 *.iml
 *.ipr
