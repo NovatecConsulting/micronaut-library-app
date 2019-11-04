@@ -7,11 +7,13 @@ import library.service.business.books.domain.states.Borrowed
 import library.service.business.books.domain.types.*
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import javax.inject.Singleton
 
 interface Mapper<in S : Any, out T : Any> {
     fun map(source: S): T
 }
 
+@Singleton
 class BookRecordToDocumentMapper : Mapper<BookRecord, BookDocument> {
 
     override fun map(source: BookRecord): BookDocument {

@@ -1,9 +1,13 @@
 package utils
 
+import io.micronaut.context.annotation.Replaces
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
+import javax.inject.Singleton
 
+@Replaces(Clock::class)
+@Singleton
 class MutableClock : Clock() {
 
     private var delegate: Clock = Clock.systemUTC()

@@ -8,7 +8,7 @@ import library.service.database.BookDocument
 import library.service.database.BookRepository
 
 
-@Controller("/books")
+@Controller("/api/books")
 class BooksController(
         private val repository: BookRepository
 ) {

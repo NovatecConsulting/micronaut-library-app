@@ -2,8 +2,10 @@ package library.service.business.books
 
 
 import library.service.business.books.domain.types.BookId
+import javax.inject.Singleton
 
-class BookIdGenerator(
+@Singleton
+open class BookIdGenerator(
         private val dataStore: BookDataStore
 ) {
 
