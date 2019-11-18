@@ -1,84 +1,111 @@
 package library.service.api.books
 
-import com.mongodb.client.result.UpdateResult
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.*
 import library.service.api.books.payload.*
-import library.service.database.BookDocument
-import library.service.database.BookRepository
+import library.service.business.books.BookCollection
+import library.service.business.books.domain.composites.Book
+import library.service.business.books.domain.types.*
+import java.util.*
+import javax.validation.Valid
 
 
 @Controller("/api/books")
 class BooksController(
-        private val repository: BookRepository
+        private val collection: BookCollection,
+        private val assembler: BookResourceAssembler
 ) {
 
     @Get("/")
-    fun getBooks(): HttpResponse<List<BookDocument>> {
-        return HttpResponse.ok(repository.find())
-    }
-
-    @Get("/{_id}")
-    fun getBook(_id: String): HttpResponse<BookDocument?>? {
-        val book = repository.find(_id)
-        book?.let {
-            return HttpResponse.ok(repository.find(_id))
-        } ?: return HttpResponse.notFound()
-
+    fun getBooks(): MutableHttpResponse<List<BookResource>> {
+        val allBookRecords = collection.getAllBooks()
+        val bookResources = mutableListOf<BookResource>()
+        for (record in allBookRecords){
+            bookResources.add(assembler.toResource(record))
+        }
+        return HttpResponse.ok(bookResources)
     }
 
     @Post("/")
-    fun postBook(@Body body: CreateBookRequest): HttpResponse<BookDocument> {
-        val insertedBook = repository.insert(body.isbn.toString(), body.title.toString())
-        return HttpResponse.created(insertedBook)
+    fun postBook(@Body body: CreateBookRequest): MutableHttpResponse<BookResource> {
+        val book = Book(
+                isbn = Isbn13.parse(body.isbn!!),
+                title = Title(body.title!!),
+                authors = emptyList(),
+                numberOfPages = null
+        )
+        val bookRecord = collection.addBook(book)
+        return HttpResponse.ok(assembler.toResource(bookRecord))
     }
 
-    @Delete("/{_id}")
-    fun deleteOne(_id: String): HttpResponse<BookDocument> {
-        repository.delete(_id)
+    @Put("/{id}/title")
+    fun putBookTitle(@PathVariable id: UUID, @Valid @Body body: UpdateTitleRequest): MutableHttpResponse<BookResource> {
+        val bookRecord = collection.updateBook(BookId(id)) {
+            it.changeTitle(Title(body.title!!))
+        }
+        return HttpResponse.ok(assembler.toResource(bookRecord))
+    }
+
+    @Put("/{id}/authors")
+    fun putBookAuthors(@PathVariable id: UUID, @Valid @Body body: UpdateAuthorsRequest):
+            MutableHttpResponse<BookResource> {
+        val bookRecord = collection.updateBook(BookId(id)) {
+            it.changeAuthors(body.authors!!.map { Author(it) })
+        }
+        return HttpResponse.ok(assembler.toResource(bookRecord))
+    }
+
+
+    @Delete("/{id}/authors")
+    fun deleteBookAuthors(@PathVariable id: UUID): MutableHttpResponse<BookResource> {
+        val bookRecord = collection.updateBook(BookId(id)) {
+            it.changeAuthors(emptyList())
+        }
+        return HttpResponse.ok(assembler.toResource(bookRecord))
+    }
+
+    @Put("/{id}/numberOfPages")
+    fun putBookNumberOfPages(@PathVariable id: UUID, @Valid @Body body: UpdateNumberOfPagesRequest):
+            MutableHttpResponse<BookResource> {
+        val bookRecord = collection.updateBook(BookId(id)) {
+            it.changeNumberOfPages(body.numberOfPages)
+        }
+        return HttpResponse.ok(assembler.toResource(bookRecord))
+    }
+
+    @Delete("/{id}/numberOfPages")
+    fun deleteBookNumberOfPages(@PathVariable id: UUID): MutableHttpResponse<BookResource> {
+        val bookRecord = collection.updateBook(BookId(id)) {
+            it.changeNumberOfPages(null)
+        }
+        return HttpResponse.ok(assembler.toResource(bookRecord))
+    }
+
+
+    @Get("/{id}")
+    fun getBook(@PathVariable id: UUID): MutableHttpResponse<BookResource> {
+        val bookRecord = collection.getBook(BookId(id))
+        return HttpResponse.ok(assembler.toResource(bookRecord))
+    }
+
+    @Delete("/{id}")
+    fun deleteBook(@PathVariable id: UUID): MutableHttpResponse<BookResource> {
+        collection.removeBook(BookId(id))
         return HttpResponse.noContent()
     }
 
-    @Put("/{_id}/title")
-    fun putBookTitle(_id: String, @Body body: UpdateTitleRequest): HttpResponse<UpdateResult> {
-        val updateResult = repository.updateTitle(_id, body.title!!)
-        return HttpResponse.ok(updateResult)
+    @Post("/{id}/borrow")
+    fun postBorrowBook(@PathVariable id: UUID, @Valid @Body body: BorrowBookRequest):
+            MutableHttpResponse<BookResource> {
+        val bookRecord = collection.borrowBook(BookId(id), Borrower(body.borrower!!))
+        return HttpResponse.ok(assembler.toResource(bookRecord))
     }
 
-    @Put("/{_id}/authors")
-    fun putBookAuthors(_id: String, @Body body: UpdateAuthorsRequest): HttpResponse<UpdateResult> {
-        val updateResult = repository.updateAuthors(_id, body.authors)
-        return HttpResponse.ok(updateResult)
-    }
-
-    @Delete("/{_id}/authors")
-    fun deleteBookAuthors(_id: String): HttpResponse<UpdateResult> {
-        val updateResult = repository.updateAuthors(_id, emptyList())
-        return HttpResponse.ok(updateResult)
-    }
-
-    @Put("/{_id}/numberOfPages")
-    fun putBookNumberOfPages(_id: String, @Body body: UpdateNumberOfPagesRequest): HttpResponse<UpdateResult> {
-        val updateResult = repository.updateNumberOfPages(_id, body.numberOfPages)
-        return HttpResponse.ok(updateResult)
-    }
-
-    @Delete("/{_id}/numberOfPages")
-    fun deleteBookNumberOfPages(_id: String): HttpResponse<UpdateResult> {
-        val updateResult = repository.updateNumberOfPages(_id, null)
-        return HttpResponse.ok(updateResult)
-    }
-
-    @Post("/{_id}/borrow")
-    fun postBorrowBook(_id: String, @Body body: BorrowBookRequest): HttpResponse<UpdateResult> {
-        // !todo IMPLEMENT
-        return HttpResponse.ok()
-    }
-
-    @Post("/{_id}/return")
-    fun postReturnBook(_id: String, @Body body: BorrowBookRequest): HttpResponse<UpdateResult> {
-        // !todo IMPLEMENT
-        return HttpResponse.ok()
+    @Post("/{id}/return")
+    fun postReturnBook(@PathVariable id: UUID):  MutableHttpResponse<BookResource> {
+        val bookRecord = collection.returnBook(BookId(id))
+        return HttpResponse.ok(assembler.toResource(bookRecord))
     }
 
 }
