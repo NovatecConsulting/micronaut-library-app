@@ -14,8 +14,6 @@ import javax.inject.Singleton
 @Singleton
 class BookResourceAssembler () {
 
-    private val booksController = BooksController::class.java
-
     fun toResource(bookRecord: BookRecord): BookResource {
         return instantiateResource(bookRecord)
     }

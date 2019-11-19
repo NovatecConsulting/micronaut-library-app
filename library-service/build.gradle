@@ -32,13 +32,11 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
     compile "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
     compile "io.micronaut:micronaut-runtime"
-    //compile "javax.annotation:javax.annotation-api"
     kapt "io.micronaut:micronaut-inject-java"
     kapt "io.micronaut:micronaut-validation"
     kaptTest "io.micronaut:micronaut-inject-java"
     runtime "ch.qos.logback:logback-classic:1.2.3"
     runtime "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.9"
-    //testAnnotationProcessor "io.micronaut:micronaut-inject-java"
     testCompile "de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.0.1"
     testCompile "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testCompile "org.jetbrains.spek:spek-api:${spekVersion}"
@@ -57,10 +55,6 @@ dependencies {
     testCompile "io.rest-assured:rest-assured:4.1.2"
     testCompile "org.skyscreamer:jsonassert:1.5.0"
 
-
-
-
-    // https://mvnrepository.com/artifact/io.micronaut.test/test-junit5
     compile group: 'io.micronaut.test', name: 'test-junit5', version: '1.0.0.M4'
 
     testRuntime "org.junit.jupiter:junit-jupiter-engine:5.1.0"
@@ -87,7 +81,7 @@ compileKotlin {
 	kotlinOptions {
 	    jvmTarget = '1.8' 
 	    //Will retain parameter names for Java reflection
-	    javaParameters = true 
+	    javaParameters = true
 	}
 }
 
