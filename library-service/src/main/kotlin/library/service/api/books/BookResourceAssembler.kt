@@ -13,7 +13,6 @@ import javax.inject.Singleton
  */
 @Singleton
 class BookResourceAssembler () {
-
     fun toResource(bookRecord: BookRecord): BookResource {
         return instantiateResource(bookRecord)
     }

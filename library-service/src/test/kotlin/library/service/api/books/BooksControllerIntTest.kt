@@ -1,4 +1,4 @@
-package library.service.api
+package library.service.api.books
 
 import io.micronaut.context.annotation.Property
 import io.micronaut.http.MediaType
@@ -7,7 +7,7 @@ import io.micronaut.test.annotation.MockBean
 import io.mockk.every
 import io.mockk.mockk
 import io.restassured.RestAssured
-import library.service.api.books.BooksController
+import library.service.business.books.BookCollection
 import library.service.business.books.BookDataStore
 import library.service.business.books.BookIdGenerator
 import library.service.business.books.domain.BookRecord
@@ -36,15 +36,14 @@ internal class BooksControllerIntTest {
 
     @Inject lateinit var bookDataStore: BookDataStore
     @Inject lateinit var bookIdGenerator: BookIdGenerator
-    @Inject lateinit var booksController: BooksController
     @Inject lateinit var clock: MutableClock
 
     @MockBean(BookDataStore::class)
     fun bookDataStore(): BookDataStore = mockk(relaxed = true)
     @MockBean(BookIdGenerator::class)
-    fun bookIdGenerator(): BookIdGenerator = mockk()
+    fun bookIdGenerator(): BookIdGenerator = mockk(relaxed = true)
     @MockBean(EventDispatcher::class)
-    fun eventDispatcher(): EventDispatcher<BookEvent> = mockk()
+    fun eventDispatcher(): EventDispatcher<BookEvent> = mockk(relaxed = true)
 
     @BeforeEach fun setTime() {
         clock.setFixedTime("2017-08-20T12:34:56.789Z")
@@ -53,6 +52,7 @@ internal class BooksControllerIntTest {
     @BeforeEach fun initMocks() {
         every { bookDataStore.findById(any()) } returns null
         every { bookDataStore.createOrUpdate(any()) } answers { firstArg() }
+        every { bookDataStore.existsById(any()) } returns false
     }
 
     @Test fun `when there are no books, the response is empty`() {
@@ -109,13 +109,30 @@ internal class BooksControllerIntTest {
                 .body(JsonMatcher.jsonEqualTo(expectedResponse))
     }
 
-    @Test fun `new test`() {
-        every { bookDataStore.findAll() } returns emptyList()
+    @Test fun `creates a book and responds with its resource representation`() {
+        val bookId = BookId.generate()
+        every { bookIdGenerator.generate() } returns bookId
 
-        RestAssured.`when`().get("/api/books").then()
+        val requestBody = """
+                    {
+                      "isbn": "9780132350884",
+                      "title": "Clean Code: A Handbook of Agile Software Craftsmanship"
+                    }
+                """
+
+        val expectedResponse = """
+                    {
+                      "isbn": "9780132350884",
+                      "title": "Clean Code: A Handbook of Agile Software Craftsmanship",
+                      "authors": []                      
+                    }
+                """
+
+        RestAssured.`given`().contentType(MediaType.APPLICATION_JSON).body(requestBody)
+                .`when`().post("/api/books").then()
                 .statusCode(200)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonMatcher.jsonEqualTo("[]"))
+                .body(JsonMatcher.jsonEqualTo(expectedResponse))
     }
 
     private fun availableBook(id: BookId, book: Book) = BookRecord(id, book)
