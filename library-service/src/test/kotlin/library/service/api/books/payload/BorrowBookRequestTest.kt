@@ -28,7 +28,7 @@ internal class BorrowBookRequestTest : AbstractPayloadTest<BorrowBookRequest>() 
 
         @Nested inner class `invalid value examples` {
 
-            private val nullError = "must not be null"
+            private val nullError = "may not be null"
             private val sizeError = "size must be between 1 and 50"
             private val patternError = """must match "${Borrower.VALID_BORROWER_PATTERN}""""
 

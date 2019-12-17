@@ -16,7 +16,7 @@ internal class ErrorDescriptionTest {
                 status = 400,
                 error = "Bad Request",
                 timestamp = "2017-08-20T12:34:56.789Z",
-                correlationId = UUID.randomUUID().toString(),
+                //correlationId = UUID.randomUUID().toString(),
                 message = "message",
                 details = listOf(
                         "detail #1",

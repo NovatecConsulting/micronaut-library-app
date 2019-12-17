@@ -14,7 +14,7 @@ data class ErrorDescription(
         val status: Int,
         val error: String,
         val timestamp: String,
-        val correlationId: String?,
+        //val correlationId: String?,
         val message: String,
         val details: List<String> = emptyList()
 )

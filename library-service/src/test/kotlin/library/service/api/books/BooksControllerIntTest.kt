@@ -7,7 +7,6 @@ import io.micronaut.test.annotation.MockBean
 import io.mockk.every
 import io.mockk.mockk
 import io.restassured.RestAssured
-import library.service.business.books.BookCollection
 import library.service.business.books.BookDataStore
 import library.service.business.books.BookIdGenerator
 import library.service.business.books.domain.BookRecord
@@ -27,23 +26,24 @@ import utils.classification.IntegrationTest
 import java.time.OffsetDateTime
 import javax.inject.Inject
 
+private val bookDataStore: BookDataStore = mockk()
+private val bookIdGenerator: BookIdGenerator = mockk()
+private val eventDispatcher: EventDispatcher<BookEvent> = mockk(relaxed = true)
+
 @MicronautTest
 @Property(name="micronaut.server.port", value="8080")
 @IntegrationTest
 @ResetMocksAfterEachTest
 internal class BooksControllerIntTest {
 
-
-    @Inject lateinit var bookDataStore: BookDataStore
-    @Inject lateinit var bookIdGenerator: BookIdGenerator
-    @Inject lateinit var clock: MutableClock
-
     @MockBean(BookDataStore::class)
-    fun bookDataStore(): BookDataStore = mockk(relaxed = true)
+    fun bookDataStore(): BookDataStore = bookDataStore
     @MockBean(BookIdGenerator::class)
-    fun bookIdGenerator(): BookIdGenerator = mockk(relaxed = true)
+    fun bookIdGenerator(): BookIdGenerator = bookIdGenerator
     @MockBean(EventDispatcher::class)
-    fun eventDispatcher(): EventDispatcher<BookEvent> = mockk(relaxed = true)
+    fun eventDispatcher(): EventDispatcher<BookEvent> = eventDispatcher
+
+    @Inject lateinit var clock: MutableClock
 
     @BeforeEach fun setTime() {
         clock.setFixedTime("2017-08-20T12:34:56.789Z")
@@ -120,8 +120,7 @@ internal class BooksControllerIntTest {
                     }
                 """
 
-        val expectedResponse = """
-                    {
+        val expectedResponse = """{
                       "isbn": "9780132350884",
                       "title": "Clean Code: A Handbook of Agile Software Craftsmanship",
                       "authors": []                      
@@ -134,6 +133,49 @@ internal class BooksControllerIntTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(JsonMatcher.jsonEqualTo(expectedResponse))
     }
+
+    @Test fun `400 BAD REQUEST for invalid ISBN`() {
+        val requestBody = """
+                    {
+                      "isbn": "abcdefghij",
+                      "title": "Clean Code: A Handbook of Agile Software Craftsmanship"
+                    }
+                """
+        val expectedResponse = """{"status": 400,
+                      "error": "Bad Request",
+                      "timestamp": "2017-08-20T12:34:56.789Z",
+                      "message": "This is not a valid ISBN-13 number: abcdefghij"
+                    }
+                """
+
+        RestAssured.`given`().contentType(MediaType.APPLICATION_JSON).body(requestBody)
+                .`when`().post("/api/books").then()
+                .statusCode(400)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(JsonMatcher.jsonEqualTo(expectedResponse))
+    }
+
+    /*@Test fun `400 BAD REQUEST for missing required properties`() {
+        val requestBody = """ { } """
+        val expectedResponse = """
+                    {
+                      "status": 400,
+                      "error": "Bad Request",
+                      "timestamp": "2017-08-20T12:34:56.789Z",
+                      "message": "The request's body is invalid. See details...",
+                      "details": [
+                        "The field 'isbn' must not be blank.",
+                        "The field 'title' must not be blank."
+                      ]
+                    }
+                """
+
+        RestAssured.`given`().contentType(MediaType.APPLICATION_JSON).body(requestBody)
+                .`when`().post("/api/books").then()
+                .statusCode(400)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(JsonMatcher.jsonEqualTo(expectedResponse))
+    }*/
 
     private fun availableBook(id: BookId, book: Book) = BookRecord(id, book)
     private fun borrowedBook(id: BookId, book: Book, borrowedBy: String, borrowedOn: String) = availableBook(id, book)
