@@ -1,5 +1,6 @@
 package library.service.api
 
+import io.micronaut.context.annotation.Requires
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
@@ -66,11 +67,12 @@ class ErrorHandlers(
         }
     }
 
-    inner class MalformedValueExceptionHandler():
-            ExceptionHandler<MalformedValueException, MutableHttpResponse<ErrorDescription>>
-    {
-        override fun handle(request: HttpRequest<Any>, exception: MalformedValueException):
-                MutableHttpResponse<ErrorDescription>? {
+    @Produces
+    @Singleton
+    @Requires(classes = [MalformedValueException::class, ExceptionHandler::class])
+    inner class MalformedValueExceptionHandler () : ExceptionHandler<MalformedValueException, MutableHttpResponse<ErrorDescription>> {
+
+        override fun handle(request: HttpRequest<*>, exception: MalformedValueException): MutableHttpResponse<ErrorDescription> {
             return HttpResponse.badRequest(errorDescription(
                     httpStatus = HttpStatus.BAD_REQUEST,
                     message = exception.message!!))
