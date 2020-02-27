@@ -1,12 +1,14 @@
 package library.service.database
 
+import io.micronaut.validation.Validated
 import library.service.business.books.BookDataStore
 import library.service.business.books.domain.BookRecord
 import library.service.business.books.domain.types.BookId
 import javax.inject.Singleton
 
 @Singleton
-class MongoBookDataStore(
+//@Validated
+open class MongoBookDataStore(
         private val repository: BookRepository,
         private val bookRecordToDocumentMapper: Mapper<BookRecord, BookDocument>,
         private val bookDocumentToRecordMapper: Mapper<BookDocument, BookRecord>

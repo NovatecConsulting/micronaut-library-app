@@ -28,13 +28,13 @@ import javax.inject.Inject
 
 private val bookDataStore: BookDataStore = mockk()
 private val bookIdGenerator: BookIdGenerator = mockk()
-private val eventDispatcher: EventDispatcher<BookEvent> = mockk(relaxed = true)
+private val eventDispatcher: EventDispatcher<BookEvent> = mockk(relaxed=true)
 
 @MicronautTest
 @Property(name="micronaut.server.port", value="8080")
 @IntegrationTest
 @ResetMocksAfterEachTest
-internal class BooksControllerIntTest {
+class BooksControllerIntTest {
 
     @MockBean(BookDataStore::class)
     fun bookDataStore(): BookDataStore = bookDataStore
@@ -58,10 +58,12 @@ internal class BooksControllerIntTest {
     @Test fun `when there are no books, the response is empty`() {
         every { bookDataStore.findAll() } returns emptyList()
 
-        RestAssured.`when`().get("/api/books").then()
-                .statusCode(200)
-                .contentType(MediaType.APPLICATION_JSON)
+        RestAssured.`when`()
+                .get("/api/books")
+                .then()
                 .body(JsonMatcher.jsonEqualTo("[]"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .statusCode(200)
     }
 
     @Test fun `when there are books, the response contains them`() {
@@ -155,7 +157,7 @@ internal class BooksControllerIntTest {
                 .body(JsonMatcher.jsonEqualTo(expectedResponse))
     }
 
-    /*@Test fun `400 BAD REQUEST for missing required properties`() {
+    @Test fun `400 BAD REQUEST for missing required properties`() {
         val requestBody = """ { } """
         val expectedResponse = """
                     {
@@ -169,13 +171,13 @@ internal class BooksControllerIntTest {
                       ]
                     }
                 """
-
+        // MethodArgumentTypeMismatchException
         RestAssured.`given`().contentType(MediaType.APPLICATION_JSON).body(requestBody)
                 .`when`().post("/api/books").then()
                 .statusCode(400)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(JsonMatcher.jsonEqualTo(expectedResponse))
-    }*/
+    }
 
     private fun availableBook(id: BookId, book: Book) = BookRecord(id, book)
     private fun borrowedBook(id: BookId, book: Book, borrowedBy: String, borrowedOn: String) = availableBook(id, book)

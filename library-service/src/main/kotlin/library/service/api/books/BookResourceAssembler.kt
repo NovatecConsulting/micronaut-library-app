@@ -12,7 +12,7 @@ import javax.inject.Singleton
  * correct links depending on the [BookRecord] state.
  */
 @Singleton
-class BookResourceAssembler () {
+open class BookResourceAssembler () {
     fun toResource(bookRecord: BookRecord): BookResource {
         return instantiateResource(bookRecord)
     }

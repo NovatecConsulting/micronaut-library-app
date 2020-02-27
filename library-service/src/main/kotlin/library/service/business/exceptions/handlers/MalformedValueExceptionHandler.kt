@@ -1,4 +1,4 @@
-package library.service.api.books
+package library.service.business.exceptions.handlers
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.http.HttpRequest
@@ -16,14 +16,16 @@ import javax.inject.Singleton
 @Produces
 @Singleton
 @Requires(classes = [MalformedValueException::class, ExceptionHandler::class])
-class MalformedValueExceptionHandler (private val clock: Clock) : ExceptionHandler<MalformedValueException, MutableHttpResponse<ErrorDescription>> {
+class MalformedValueExceptionHandler (private val clock: Clock) :
+        ExceptionHandler<MalformedValueException, MutableHttpResponse<ErrorDescription>> {
 
-    override fun handle(request: HttpRequest<*>, exception: MalformedValueException): MutableHttpResponse<ErrorDescription> {
+    override fun handle(request: HttpRequest<*>, exception: MalformedValueException):
+            MutableHttpResponse<ErrorDescription> {
+        exception.printStackTrace()
         return HttpResponse.badRequest(errorDescription(
                 httpStatus = HttpStatus.BAD_REQUEST,
                 message = exception.message!!))
     }
-
 
     private fun errorDescription(
             httpStatus: HttpStatus,
@@ -37,6 +39,4 @@ class MalformedValueExceptionHandler (private val clock: Clock) : ExceptionHandl
             message = message,
             details = details
     )
-
-
 }

@@ -25,7 +25,7 @@ import javax.inject.Singleton
  */
 
 @Singleton
-class BookCollection(
+open class BookCollection(
         private val clock: Clock,
         private val dataStore: BookDataStore,
         private val idGenerator: BookIdGenerator,

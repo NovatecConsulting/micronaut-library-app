@@ -3,6 +3,7 @@ package library.service.api.books
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.*
+import io.micronaut.validation.Validated
 import library.service.api.books.payload.*
 import library.service.business.books.BookCollection
 import library.service.business.books.domain.composites.Book
@@ -10,9 +11,9 @@ import library.service.business.books.domain.types.*
 import java.util.*
 import javax.validation.Valid
 
-
+@Validated
 @Controller("/api/books")
-class BooksController(
+open class BooksController(
         private val collection: BookCollection,
         private val assembler: BookResourceAssembler
 ) {
@@ -28,7 +29,7 @@ class BooksController(
     }
 
     @Post("/")
-    fun postBook(@Body body: CreateBookRequest): MutableHttpResponse<BookResource> {
+    fun postBook(@Valid @Body body: CreateBookRequest): MutableHttpResponse<BookResource> {
         val book = Book(
                 isbn = Isbn13.parse(body.isbn!!),
                 title = Title(body.title!!),
@@ -40,7 +41,7 @@ class BooksController(
     }
 
     @Put("/{id}/title")
-    fun putBookTitle(@PathVariable id: UUID, @Valid @Body body: UpdateTitleRequest): MutableHttpResponse<BookResource> {
+    open fun putBookTitle(@PathVariable id: UUID, @Valid @Body body: UpdateTitleRequest): MutableHttpResponse<BookResource> {
         val bookRecord = collection.updateBook(BookId(id)) {
             it.changeTitle(Title(body.title!!))
         }
@@ -48,7 +49,7 @@ class BooksController(
     }
 
     @Put("/{id}/authors")
-    fun putBookAuthors(@PathVariable id: UUID, @Valid @Body body: UpdateAuthorsRequest):
+    open fun putBookAuthors(@PathVariable id: UUID, @Valid @Body body: UpdateAuthorsRequest):
             MutableHttpResponse<BookResource> {
         val bookRecord = collection.updateBook(BookId(id)) {
             it.changeAuthors(body.authors!!.map { Author(it) })
@@ -66,7 +67,7 @@ class BooksController(
     }
 
     @Put("/{id}/numberOfPages")
-    fun putBookNumberOfPages(@PathVariable id: UUID, @Valid @Body body: UpdateNumberOfPagesRequest):
+    open fun putBookNumberOfPages(@PathVariable id: UUID, @Valid @Body body: UpdateNumberOfPagesRequest):
             MutableHttpResponse<BookResource> {
         val bookRecord = collection.updateBook(BookId(id)) {
             it.changeNumberOfPages(body.numberOfPages)
@@ -96,14 +97,14 @@ class BooksController(
     }
 
     @Post("/{id}/borrow")
-    fun postBorrowBook(@PathVariable id: UUID, @Valid @Body body: BorrowBookRequest):
+    open fun postBorrowBook(@PathVariable id: UUID, @Valid @Body body: BorrowBookRequest):
             MutableHttpResponse<BookResource> {
         val bookRecord = collection.borrowBook(BookId(id), Borrower(body.borrower!!))
         return HttpResponse.ok(assembler.toResource(bookRecord))
     }
 
     @Post("/{id}/return")
-    fun postReturnBook(@PathVariable id: UUID):  MutableHttpResponse<BookResource> {
+    open fun postReturnBook(@PathVariable id: UUID):  MutableHttpResponse<BookResource> {
         val bookRecord = collection.returnBook(BookId(id))
         return HttpResponse.ok(assembler.toResource(bookRecord))
     }
