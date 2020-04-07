@@ -7,23 +7,24 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.Produces
 import io.micronaut.http.server.exceptions.ExceptionHandler
+import io.micronaut.web.router.exceptions.UnsatisfiedBodyRouteException
 import library.service.api.ErrorDescription
 import java.time.Clock
 import javax.inject.Singleton
 
 @Produces
 @Singleton
-@Requires(classes = [AccessDeniedException::class, ExceptionHandler::class])
-class AccessDeniedExceptionHandler (private val clock: Clock) :
-        BasicExceptionHandler<AccessDeniedException, MutableHttpResponse<ErrorDescription>> (clock) {
+@Requires(classes = [UnsatisfiedBodyRouteException::class, ExceptionHandler::class])
+class UnsatisfiedBodyRouteExceptionHandler (private val clock: Clock) :
+        BasicExceptionHandler<UnsatisfiedBodyRouteException, MutableHttpResponse<ErrorDescription>> (clock) {
 
-    override fun handle(request: HttpRequest<*>, exception: AccessDeniedException):
+    override fun handle(request: HttpRequest<*>, exception: UnsatisfiedBodyRouteException):
             MutableHttpResponse<ErrorDescription> {
 
         exception.printStackTrace()
 
         return HttpResponse.badRequest(errorDescription(
-                httpStatus = HttpStatus.FORBIDDEN,
-                message = "You don't have the necessary rights to to this."))
+                httpStatus = HttpStatus.BAD_REQUEST,
+                message = "The request's body could not be read. It is either empty or malformed."))
     }
 }

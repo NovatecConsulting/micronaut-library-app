@@ -1,9 +1,9 @@
 package library.service.api.books
 
-import org.junit.jupiter.api.Test
-import utils.classification.UnitTest
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import utils.classification.UnitTest
 
 @UnitTest
 class BookResourceTest {

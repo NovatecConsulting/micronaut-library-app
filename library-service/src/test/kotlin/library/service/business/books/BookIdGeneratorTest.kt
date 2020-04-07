@@ -1,9 +1,9 @@
 package library.service.business.books
 
-import org.assertj.core.api.Assertions.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import utils.classification.UnitTest
 

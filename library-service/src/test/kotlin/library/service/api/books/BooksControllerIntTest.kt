@@ -146,7 +146,8 @@ class BooksControllerIntTest {
         val expectedResponse = """{"status": 400,
                       "error": "Bad Request",
                       "timestamp": "2017-08-20T12:34:56.789Z",
-                      "message": "This is not a valid ISBN-13 number: abcdefghij"
+                      "message": "The request's body is invalid. See details...",
+                      "details": ["The field 'isbn' must match \"(\\d{3}-?)?\\d{10}\"."]
                     }
                 """
 
@@ -171,11 +172,23 @@ class BooksControllerIntTest {
                       ]
                     }
                 """
-        // MethodArgumentTypeMismatchException
         RestAssured.`given`().contentType(MediaType.APPLICATION_JSON).body(requestBody)
                 .`when`().post("/api/books").then()
                 .statusCode(400)
                 .contentType(MediaType.APPLICATION_JSON)
+                .body(JsonMatcher.jsonEqualTo(expectedResponse))
+    }
+
+    @Test fun `415 UNSUPPORTED MEDIA for missing content type in header request`() {
+        val requestBody = """ """
+        val expectedResponse = """
+                    {
+                      "message":"Content Type [text/plain;charset=ISO-8859-1] not allowed. Allowed types: [application/json]","_links":{"self":{"href":"/api/books","templated":false}}}
+                    }
+                """
+        RestAssured.`given`().body(requestBody)
+                .`when`().post("/api/books").then()
+                .statusCode(415)
                 .body(JsonMatcher.jsonEqualTo(expectedResponse))
     }
 

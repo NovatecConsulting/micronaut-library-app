@@ -1,15 +1,14 @@
 package library.service.api.books
 
-import io.mockk.every
 import library.service.business.books.domain.BookRecord
 import library.service.business.books.domain.types.BookId
 import library.service.business.books.domain.types.Borrower
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import utils.Books
 import utils.classification.UnitTest
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Nested
 import java.time.OffsetDateTime
 
 @UnitTest

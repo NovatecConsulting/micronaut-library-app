@@ -1,6 +1,5 @@
 package library.service.database
 
-import io.micronaut.validation.Validated
 import library.service.business.books.BookDataStore
 import library.service.business.books.domain.BookRecord
 import library.service.business.books.domain.types.BookId
