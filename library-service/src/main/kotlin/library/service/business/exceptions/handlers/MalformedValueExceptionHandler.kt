@@ -21,8 +21,6 @@ class MalformedValueExceptionHandler (private val clock: Clock) :
     override fun handle(request: HttpRequest<*>, exception: MalformedValueException):
             MutableHttpResponse<ErrorDescription> {
 
-        exception.printStackTrace()
-
         return HttpResponse.badRequest(errorDescription(
                 httpStatus = HttpStatus.BAD_REQUEST,
                 message = exception.message!!))

@@ -20,9 +20,7 @@ class NotFoundExceptionHandler (private val clock: Clock) :
 
     override fun handle(request: HttpRequest<*>, exception: NotFoundException): MutableHttpResponse<ErrorDescription> {
 
-        exception.printStackTrace()
-
-        return HttpResponse.badRequest(errorDescription(
+        return HttpResponse.notFound(errorDescription(
                 httpStatus = HttpStatus.NOT_FOUND,
                 message = exception.message!!))
     }

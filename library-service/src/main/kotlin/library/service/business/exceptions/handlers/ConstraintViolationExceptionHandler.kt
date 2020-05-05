@@ -20,8 +20,6 @@ class ConstraintViolationExceptionHandler (private val clock: Clock) :
     override fun handle(request: HttpRequest<*>, exception: ConstraintViolationException):
             MutableHttpResponse<ErrorDescription> {
 
-        exception.printStackTrace()
-
         // Customize ConstraintViolationMessage to match Spring MethodArgumentTypeMismatchException for comparability
         val detailsList = exception.message!!.split(", ").toMutableList()
         val it = detailsList.listIterator()

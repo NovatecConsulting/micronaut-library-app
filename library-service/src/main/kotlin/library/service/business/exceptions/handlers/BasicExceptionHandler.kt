@@ -6,8 +6,10 @@ import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.Produces
 import io.micronaut.http.server.exceptions.ExceptionHandler
 import library.service.api.ErrorDescription
+import org.slf4j.LoggerFactory
 import java.time.Clock
 import java.time.OffsetDateTime
+import java.util.logging.Logger
 import javax.inject.Singleton
 
 @Produces
@@ -15,6 +17,9 @@ import javax.inject.Singleton
 @Requires(classes = [Exception::class, ExceptionHandler::class])
 abstract class BasicExceptionHandler <E : Exception, R : MutableHttpResponse<ErrorDescription>>
     (private val clock: Clock) : ExceptionHandler<E, R> {
+    companion object {
+        public val LOG = LoggerFactory.getLogger(BasicExceptionHandler::class.java.name)
+    }
 
     fun errorDescription(
             httpStatus: HttpStatus,

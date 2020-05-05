@@ -20,9 +20,7 @@ class GenericExceptionHandler (private val clock: Clock) :
     override fun handle(request: HttpRequest<Any>, exception: Exception):
             MutableHttpResponse<ErrorDescription>? {
 
-        exception.printStackTrace()
-
-        return HttpResponse.badRequest(errorDescription(
+        return HttpResponse.serverError(errorDescription(
                 httpStatus = HttpStatus.INTERNAL_SERVER_ERROR,
                 message = "An internal server error occurred, see server logs for more information."))
     }

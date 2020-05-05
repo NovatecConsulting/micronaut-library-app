@@ -21,8 +21,6 @@ class UnsatisfiedBodyRouteExceptionHandler (private val clock: Clock) :
     override fun handle(request: HttpRequest<*>, exception: UnsatisfiedBodyRouteException):
             MutableHttpResponse<ErrorDescription> {
 
-        exception.printStackTrace()
-
         return HttpResponse.badRequest(errorDescription(
                 httpStatus = HttpStatus.BAD_REQUEST,
                 message = "The request's body could not be read. It is either empty or malformed."))
