@@ -1,4 +1,4 @@
-package library.service
+package library.service.business.events
 
 import library.service.business.books.domain.events.BookEvent
 import library.service.business.events.EventDispatcher

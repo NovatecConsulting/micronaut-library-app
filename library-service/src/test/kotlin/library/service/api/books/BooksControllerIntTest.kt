@@ -1,8 +1,8 @@
 package library.service.api.books
 
-import io.micronaut.context.annotation.Property
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.MediaType
+import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.test.annotation.MicronautTest
 import io.micronaut.test.annotation.MockBean
 import io.mockk.every
@@ -27,16 +27,15 @@ import utils.classification.IntegrationTest
 import java.time.OffsetDateTime
 import javax.inject.Inject
 
+
 private val bookDataStore: BookDataStore = mockk()
 private val bookIdGenerator: BookIdGenerator = mockk()
 private val eventDispatcher: EventDispatcher<BookEvent> = mockk(relaxed=true)
 
 @MicronautTest
-@Property(name="micronaut.server.port", value="8080")
 @IntegrationTest
 @ResetMocksAfterEachTest
 class BooksControllerIntTest {
-
     @MockBean(BookDataStore::class)
     fun bookDataStore(): BookDataStore = bookDataStore
     @MockBean(BookIdGenerator::class)
@@ -44,10 +43,12 @@ class BooksControllerIntTest {
     @MockBean(EventDispatcher::class)
     fun eventDispatcher(): EventDispatcher<BookEvent> = eventDispatcher
 
+    @Inject lateinit var server: EmbeddedServer
     @Inject lateinit var clock: MutableClock
 
     @BeforeEach fun setTime() {
         clock.setFixedTime("2017-08-20T12:34:56.789Z")
+        RestAssured.port = server.url.port
     }
 
     @BeforeEach fun initMocks() {
@@ -107,7 +108,7 @@ class BooksControllerIntTest {
                     ]
                 """
 
-        RestAssured.`when`().get("/api/books").then()
+        RestAssured.given().`when`().get("/api/books").then()
                 .statusCode(HttpStatus.OK.code)
                 .contentType(MediaType.APPLICATION_HAL_JSON)
                 .body(JsonMatcher.jsonEqualTo(expectedResponse))

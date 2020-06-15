@@ -21,6 +21,8 @@ configurations {
 }
 
 dependencies {
+    annotationProcessor 'io.micronaut:micronaut-security-annotations'
+
     implementation platform("io.micronaut:micronaut-bom:$micronautVersion")
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
@@ -29,6 +31,7 @@ dependencies {
     implementation "javax.annotation:javax.annotation-api"
     implementation "io.micronaut:micronaut-http-server-netty"
     implementation "io.micronaut:micronaut-http-client"
+    implementation "io.micronaut:micronaut-security"
 
     compile "io.micronaut:micronaut-http-client"
     compile "io.micronaut:micronaut-validation"
@@ -38,7 +41,6 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
     compile "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
     compile "io.micronaut:micronaut-runtime"
-
 
     kapt platform("io.micronaut:micronaut-bom:$micronautVersion")
     kapt "io.micronaut:micronaut-inject-java"
