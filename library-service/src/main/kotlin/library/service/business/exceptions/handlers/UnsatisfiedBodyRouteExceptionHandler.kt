@@ -9,20 +9,27 @@ import io.micronaut.http.annotation.Produces
 import io.micronaut.http.server.exceptions.ExceptionHandler
 import io.micronaut.web.router.exceptions.UnsatisfiedBodyRouteException
 import library.service.api.ErrorDescription
+import library.service.correlation.CorrelationIdHolder
 import java.time.Clock
 import javax.inject.Singleton
 
 @Produces
 @Singleton
 @Requires(classes = [UnsatisfiedBodyRouteException::class, ExceptionHandler::class])
-class UnsatisfiedBodyRouteExceptionHandler (private val clock: Clock) :
-        BasicExceptionHandler<UnsatisfiedBodyRouteException, MutableHttpResponse<ErrorDescription>> (clock) {
+class UnsatisfiedBodyRouteExceptionHandler(private val clock: Clock, correlationIdHolder: CorrelationIdHolder) :
+    BasicExceptionHandler<UnsatisfiedBodyRouteException, MutableHttpResponse<ErrorDescription>>(
+        clock,
+        correlationIdHolder
+    ) {
 
     override fun handle(request: HttpRequest<*>, exception: UnsatisfiedBodyRouteException):
             MutableHttpResponse<ErrorDescription> {
 
-        return HttpResponse.badRequest(errorDescription(
+        return HttpResponse.badRequest(
+            errorDescription(
                 httpStatus = HttpStatus.BAD_REQUEST,
-                message = "The request's body could not be read. It is either empty or malformed."))
+                message = "The request's body could not be read. It is either empty or malformed."
+            )
+        )
     }
 }

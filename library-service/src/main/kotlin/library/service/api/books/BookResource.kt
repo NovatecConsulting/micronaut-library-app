@@ -2,7 +2,6 @@ package library.service.api.books
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
-import io.micronaut.http.hateoas.Link
 import library.service.business.books.domain.BookRecord
 import javax.inject.Singleton
 
@@ -10,14 +9,14 @@ import javax.inject.Singleton
 @JsonInclude(NON_NULL)
 @Singleton
 data class BookResource(
-        val isbn: String,
-        val title: String,
-        val authors: List<String>?,
-        val numberOfPages: Int?,
-        val borrowed: Borrowed?
+    val isbn: String,
+    val title: String,
+    val authors: List<String>?,
+    val numberOfPages: Int?,
+    val borrowed: Borrowed?
 )
 
 data class Borrowed(
-        val by: String,
-        val on: String
+    val by: String,
+    val on: String
 )

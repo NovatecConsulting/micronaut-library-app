@@ -21,8 +21,7 @@ configurations {
 }
 
 dependencies {
-    annotationProcessor 'io.micronaut:micronaut-security-annotations'
-
+    annotationProcessor "io.micronaut.security:micronaut-security-annotations"
     implementation platform("io.micronaut:micronaut-bom:$micronautVersion")
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
@@ -31,12 +30,12 @@ dependencies {
     implementation "javax.annotation:javax.annotation-api"
     implementation "io.micronaut:micronaut-http-server-netty"
     implementation "io.micronaut:micronaut-http-client"
-    implementation "io.micronaut:micronaut-security"
+    implementation "io.micronaut.security:micronaut-security"
+    implementation "io.micronaut.mongodb:micronaut-mongo-sync"
 
     compile "io.micronaut:micronaut-http-client"
     compile "io.micronaut:micronaut-validation"
-    compile "io.micronaut.configuration:micronaut-mongo-reactive"
-    compile "org.mongodb:mongo-java-driver"
+
     compile "io.micronaut:micronaut-http-server-netty"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
     compile "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"

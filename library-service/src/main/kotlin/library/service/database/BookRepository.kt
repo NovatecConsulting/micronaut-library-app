@@ -1,20 +1,24 @@
 package library.service.database
 
-import com.mongodb.MongoClient
+import com.mongodb.MongoClientSettings
+import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters.eq
-import com.mongodb.client.model.UpdateOptions
+import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.client.result.UpdateResult
 import org.bson.Document
-import org.bson.codecs.configuration.CodecRegistries.fromProviders
+import org.bson.UuidRepresentation
+import org.bson.codecs.UuidCodec
+import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistries.fromRegistries
 import org.bson.codecs.pojo.PojoCodecProvider
 import java.util.*
 import javax.inject.Singleton
 
+
 @Singleton
 class BookRepository(
-        private val mongoClient: MongoClient
+    private val mongoClient: MongoClient
 ) {
 
     fun find(): List<BookDocument> {
@@ -29,9 +33,9 @@ class BookRepository(
         return find(_id) != null
     }
 
-    fun save(_document: BookDocument): BookDocument{
+    fun save(_document: BookDocument): BookDocument {
         val filter = eq("_id", _document.id)
-        val options = UpdateOptions().upsert(true)
+        val options = ReplaceOptions().upsert(true)
         val updateResult = getCollection().replaceOne(filter, _document, options)
 
         return if (updateResult.upsertedId == null) {
@@ -71,12 +75,15 @@ class BookRepository(
 
     private fun getCollection(): MongoCollection<BookDocument> {
         val codecRegistry = fromRegistries(
-                MongoClient.getDefaultCodecRegistry(),
-                fromProviders(PojoCodecProvider.builder().automatic(true).build())
+            CodecRegistries.fromCodecs(UuidCodec(UuidRepresentation.STANDARD)),
+            MongoClientSettings.getDefaultCodecRegistry(),
+            CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build())
+
         )
+
         return mongoClient
-                .getDatabase("library-service")
-                .withCodecRegistry(codecRegistry)
-                .getCollection("book", BookDocument::class.java)
+            .getDatabase("library-service")
+            .withCodecRegistry(codecRegistry)
+            .getCollection("book", BookDocument::class.java)
     }
 }

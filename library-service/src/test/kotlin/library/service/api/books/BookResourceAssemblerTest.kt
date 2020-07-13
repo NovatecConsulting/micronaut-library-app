@@ -1,8 +1,11 @@
 package library.service.api.books
 
+import io.mockk.every
+import io.mockk.mockk
 import library.service.business.books.domain.BookRecord
 import library.service.business.books.domain.types.BookId
 import library.service.business.books.domain.types.Borrower
+import library.service.security.UserContext
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -13,7 +16,8 @@ import java.time.OffsetDateTime
 
 @UnitTest
 class BookResourceAssemblerTest {
-    val cut = BookResourceAssembler()
+    val currentUser: UserContext = mockk()
+    val cut = BookResourceAssembler(currentUser)
 
     val id = BookId.generate()
     val book = Books.THE_MARTIAN
@@ -21,7 +25,7 @@ class BookResourceAssemblerTest {
 
     @BeforeEach
     fun setMockDefaults(){
-        //every { currentUser.isCurator() } returns false
+        every { currentUser.isCurator() } returns false
     }
 
     @Test

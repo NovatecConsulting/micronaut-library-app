@@ -3,6 +3,7 @@ package library.service.api.books
 import library.service.business.books.domain.BookRecord
 import library.service.business.books.domain.states.Available
 import library.service.business.books.domain.states.Borrowed
+import library.service.security.UserContext
 import javax.inject.Singleton
 
 /**
@@ -12,7 +13,9 @@ import javax.inject.Singleton
  * correct links depending on the [BookRecord] state.
  */
 @Singleton
-open class BookResourceAssembler () {
+open class BookResourceAssembler (
+        private val currentUser: UserContext
+) {
     fun toResource(bookRecord: BookRecord): BookResource {
         return instantiateResource(bookRecord)
     }
