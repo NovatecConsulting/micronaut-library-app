@@ -8,15 +8,15 @@ import javax.inject.Singleton
 @Singleton
 //@Validated
 open class MongoBookDataStore(
-        private val repository: BookRepository,
-        private val bookRecordToDocumentMapper: Mapper<BookRecord, BookDocument>,
-        private val bookDocumentToRecordMapper: Mapper<BookDocument, BookRecord>
+    private val repository: BookRepository,
+    private val bookRecordToDocumentMapper: BookRecordToDocumentMapper,
+    private val bookDocumentToRecordMapper: BookDocumentToRecordMapper
 ) : BookDataStore {
 
     override fun createOrUpdate(bookRecord: BookRecord): BookRecord {
         val document = bookRecordToDocumentMapper.map(bookRecord)
         val updatedDocument = repository.save(document)
-        return bookDocumentToRecordMapper.map(updatedDocument)
+        return bookDocumentToRecordMapper.map(updatedDocument!!)
     }
 
     override fun delete(bookRecord: BookRecord) {
@@ -25,17 +25,16 @@ open class MongoBookDataStore(
 
     override fun findById(id: BookId): BookRecord? {
         val document = repository.find(id.toString())
-        var bookRecord: BookRecord? = null
-        if(document != null){
-            bookRecord = bookDocumentToRecordMapper.map(document)
+        if (document != null) {
+            return bookDocumentToRecordMapper.map(document)
         }
-        return bookRecord
+        return null
     }
 
     override fun findAll(): List<BookRecord> {
         val documents = repository.find()
         val bookRecords = mutableListOf<BookRecord>()
-        for(document in documents){
+        for (document in documents) {
             bookRecords.add(bookDocumentToRecordMapper.map(document))
         }
         return bookRecords

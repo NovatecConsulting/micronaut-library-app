@@ -12,13 +12,13 @@ import utils.Books
 import utils.classification.UnitTest
 import java.time.OffsetDateTime
 
-
 @UnitTest
 internal class BookRecordToDocumentMapperTest {
 
     val cut = BookRecordToDocumentMapper()
 
-    @Test fun `mapping uses the record's id as a UUID`() {
+    @Test
+    fun `mapping uses the record's id as a UUID`() {
         val bookId = BookId.generate()
         val bookRecord = BookRecord(bookId, Books.THE_LORD_OF_THE_RINGS_1)
         with(cut.map(bookRecord)) {
@@ -26,7 +26,8 @@ internal class BookRecordToDocumentMapperTest {
         }
     }
 
-    @Test fun `mapping uses string representations of the record's book data`() {
+    @Test
+    fun `mapping uses string representations of the record's book data`() {
         val bookId = BookId.generate()
         val book = Books.THE_LORD_OF_THE_RINGS_2
         with(cut.map(BookRecord(bookId, book))) {
@@ -36,9 +37,11 @@ internal class BookRecordToDocumentMapperTest {
         }
     }
 
-    @Nested inner class `handling of 'borrowed' state` {
+    @Nested
+    inner class `handling of 'borrowed' state` {
 
-        @Test fun `mapping sets borrowed to null if record has 'available' state`() {
+        @Test
+        fun `mapping sets borrowed to null if record has 'available' state`() {
             val bookId = BookId.generate()
             val book = Books.THE_LORD_OF_THE_RINGS_3
             with(cut.map(BookRecord(bookId, book, Available))) {
@@ -46,7 +49,8 @@ internal class BookRecordToDocumentMapperTest {
             }
         }
 
-        @Test fun `mapping sets borrowed if record has 'borrowed' state`() {
+        @Test
+        fun `mapping sets borrowed if record has 'borrowed' state`() {
             val bookId = BookId.generate()
             val book = Books.THE_LORD_OF_THE_RINGS_3
             val state = Borrowed(Borrower("Frodo"), OffsetDateTime.parse("2017-12-16T12:34:56.789Z"))
@@ -57,7 +61,8 @@ internal class BookRecordToDocumentMapperTest {
             }
         }
 
-        @Test fun `mapping converts borrowed timestamp to UTC timezone`() {
+        @Test
+        fun `mapping converts borrowed timestamp to UTC timezone`() {
             val bookId = BookId.generate()
             val book = Books.THE_LORD_OF_THE_RINGS_3
             val state = Borrowed(Borrower("Frodo"), OffsetDateTime.parse("2017-12-16T12:34:56.789+01:00"))

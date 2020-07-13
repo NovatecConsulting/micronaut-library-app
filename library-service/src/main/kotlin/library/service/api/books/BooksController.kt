@@ -11,6 +11,7 @@ import library.service.api.books.payload.*
 import library.service.business.books.BookCollection
 import library.service.business.books.domain.composites.Book
 import library.service.business.books.domain.types.*
+import library.service.security.Authorizations
 import java.util.*
 import javax.validation.Valid
 
@@ -18,17 +19,17 @@ import javax.validation.Valid
 @Controller("/api/books")
 @Secured(SecurityRule.IS_AUTHENTICATED)
 open class BooksController(
-        private val collection: BookCollection,
-        private val assembler: BookResourceAssembler
+    private val collection: BookCollection,
+    private val assembler: BookResourceAssembler
 ) {
 
     @Get("/")
     @Produces(MediaType.APPLICATION_HAL_JSON)
-    @Secured("USER")
+    @Secured(Authorizations.USER_ROLE)
     fun getBooks(): MutableHttpResponse<List<BookResource>> {
         val allBookRecords = collection.getAllBooks()
         val bookResources = mutableListOf<BookResource>()
-        for (record in allBookRecords){
+        for (record in allBookRecords) {
             bookResources.add(assembler.toResource(record))
         }
         return HttpResponse.ok(bookResources)
@@ -36,13 +37,13 @@ open class BooksController(
 
     @Post("/")
     @Produces(MediaType.APPLICATION_HAL_JSON)
-    @Secured("CURATOR")
+    @Secured(Authorizations.CURATOR_ROLE)
     fun postBook(@Valid @Body body: CreateBookRequest): MutableHttpResponse<BookResource> {
         val book = Book(
-                isbn = Isbn13.parse(body.isbn!!),
-                title = Title(body.title!!),
-                authors = emptyList(),
-                numberOfPages = null
+            isbn = Isbn13.parse(body.isbn!!),
+            title = Title(body.title!!),
+            authors = emptyList(),
+            numberOfPages = null
         )
         val bookRecord = collection.addBook(book)
         return HttpResponse.ok(assembler.toResource(bookRecord))
@@ -50,8 +51,11 @@ open class BooksController(
 
     @Put("/{id}/title")
     @Produces(MediaType.APPLICATION_HAL_JSON)
-    @Secured("CURATOR")
-    open fun putBookTitle(@PathVariable id: UUID, @Valid @Body body: UpdateTitleRequest): MutableHttpResponse<BookResource> {
+    @Secured(Authorizations.CURATOR_ROLE)
+    open fun putBookTitle(
+        @PathVariable id: UUID,
+        @Valid @Body body: UpdateTitleRequest
+    ): MutableHttpResponse<BookResource> {
         val bookRecord = collection.updateBook(BookId(id)) {
             it.changeTitle(Title(body.title!!))
         }
@@ -60,7 +64,7 @@ open class BooksController(
 
     @Put("/{id}/authors")
     @Produces(MediaType.APPLICATION_HAL_JSON)
-    @Secured("CURATOR")
+    @Secured(Authorizations.CURATOR_ROLE)
     open fun putBookAuthors(@PathVariable id: UUID, @Valid @Body body: UpdateAuthorsRequest):
             MutableHttpResponse<BookResource> {
         val bookRecord = collection.updateBook(BookId(id)) {
@@ -72,7 +76,7 @@ open class BooksController(
 
     @Delete("/{id}/authors")
     @Produces(MediaType.APPLICATION_HAL_JSON)
-    @Secured("CURATOR")
+    @Secured(Authorizations.CURATOR_ROLE)
     fun deleteBookAuthors(@PathVariable id: UUID): MutableHttpResponse<BookResource> {
         val bookRecord = collection.updateBook(BookId(id)) {
             it.changeAuthors(emptyList())
@@ -82,7 +86,7 @@ open class BooksController(
 
     @Put("/{id}/numberOfPages")
     @Produces(MediaType.APPLICATION_HAL_JSON)
-    @Secured("CURATOR")
+    @Secured(Authorizations.CURATOR_ROLE)
     open fun putBookNumberOfPages(@PathVariable id: UUID, @Valid @Body body: UpdateNumberOfPagesRequest):
             MutableHttpResponse<BookResource> {
         val bookRecord = collection.updateBook(BookId(id)) {
@@ -93,7 +97,7 @@ open class BooksController(
 
     @Delete("/{id}/numberOfPages")
     @Produces(MediaType.APPLICATION_HAL_JSON)
-    @Secured("CURATOR")
+    @Secured(Authorizations.CURATOR_ROLE)
     fun deleteBookNumberOfPages(@PathVariable id: UUID): MutableHttpResponse<BookResource> {
         val bookRecord = collection.updateBook(BookId(id)) {
             it.changeNumberOfPages(null)
@@ -104,7 +108,7 @@ open class BooksController(
 
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_HAL_JSON)
-    @Secured("USER")
+    @Secured(Authorizations.USER_ROLE)
     fun getBook(@PathVariable id: UUID): MutableHttpResponse<BookResource> {
         val bookRecord = collection.getBook(BookId(id))
         return HttpResponse.ok(assembler.toResource(bookRecord))
@@ -112,7 +116,7 @@ open class BooksController(
 
     @Delete("/{id}")
     @Produces(MediaType.APPLICATION_HAL_JSON)
-    @Secured("CURATOR")
+    @Secured(Authorizations.CURATOR_ROLE)
     fun deleteBook(@PathVariable id: UUID): MutableHttpResponse<BookResource> {
         collection.removeBook(BookId(id))
         return HttpResponse.noContent()
@@ -120,7 +124,7 @@ open class BooksController(
 
     @Post("/{id}/borrow")
     @Produces(MediaType.APPLICATION_HAL_JSON)
-    @Secured("CURATOR")
+    @Secured(Authorizations.CURATOR_ROLE)
     open fun postBorrowBook(@PathVariable id: UUID, @Valid @Body body: BorrowBookRequest):
             MutableHttpResponse<BookResource> {
         val bookRecord = collection.borrowBook(BookId(id), Borrower(body.borrower!!))
@@ -129,8 +133,8 @@ open class BooksController(
 
     @Post("/{id}/return")
     @Produces(MediaType.APPLICATION_HAL_JSON)
-    @Secured("CURATOR")
-    open fun postReturnBook(@PathVariable id: UUID):  MutableHttpResponse<BookResource> {
+    @Secured(Authorizations.CURATOR_ROLE)
+    open fun postReturnBook(@PathVariable id: UUID): MutableHttpResponse<BookResource> {
         val bookRecord = collection.returnBook(BookId(id))
         return HttpResponse.ok(assembler.toResource(bookRecord))
     }

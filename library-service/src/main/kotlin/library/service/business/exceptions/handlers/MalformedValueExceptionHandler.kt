@@ -9,20 +9,27 @@ import io.micronaut.http.annotation.Produces
 import io.micronaut.http.server.exceptions.ExceptionHandler
 import library.service.api.ErrorDescription
 import library.service.business.exceptions.MalformedValueException
+import library.service.correlation.CorrelationIdHolder
 import java.time.Clock
 import javax.inject.Singleton
 
 @Produces
 @Singleton
 @Requires(classes = [MalformedValueException::class, ExceptionHandler::class])
-class MalformedValueExceptionHandler (private val clock: Clock) :
-        BasicExceptionHandler<MalformedValueException, MutableHttpResponse<ErrorDescription>> (clock) {
+class MalformedValueExceptionHandler(private val clock: Clock, correlationIdHolder: CorrelationIdHolder) :
+    BasicExceptionHandler<MalformedValueException, MutableHttpResponse<ErrorDescription>>(
+        clock,
+        correlationIdHolder
+    ) {
 
     override fun handle(request: HttpRequest<*>, exception: MalformedValueException):
             MutableHttpResponse<ErrorDescription> {
 
-        return HttpResponse.badRequest(errorDescription(
+        return HttpResponse.badRequest(
+            errorDescription(
                 httpStatus = HttpStatus.BAD_REQUEST,
-                message = exception.message!!))
+                message = exception.message!!
+            )
+        )
     }
 }

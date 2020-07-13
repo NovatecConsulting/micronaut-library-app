@@ -26,6 +26,6 @@ credentials:
     curator: curator
     user: user
   roles:
-    admin: ADMIN
-    curator: CURATOR
-    user: USER
+    admin: ROLE_ADMIN
+    curator: ROLE_CURATOR
+    user: ROLE_USER
